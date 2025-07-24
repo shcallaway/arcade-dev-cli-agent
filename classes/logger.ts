@@ -1,13 +1,36 @@
 import chalk from "chalk";
 import ora, { type Ora } from "ora";
-
 import type { Config } from "./config";
+import { Writable } from "stream";
 
 export enum LogLevel {
   DEBUG = "debug",
   INFO = "info",
   WARN = "warn",
   ERROR = "error",
+}
+
+const SPAN_UPDATE_INTERVAL = 200;
+
+class LoggerStream extends Writable {
+  public appendedString: string = '';
+  private logger: Logger;
+  private lastUpdatedAt: number = 0;
+
+  constructor(logger: Logger) {
+    super();
+    this.logger = logger;
+  }
+
+  _write(chunk: any, encoding: string, callback: (error?: Error | null) => void) {
+    const stringChunk = String(chunk);
+    this.appendedString += stringChunk;
+    if (Date.now() - this.lastUpdatedAt > SPAN_UPDATE_INTERVAL) {
+      this.logger.streamToSpan(this.appendedString);
+      this.lastUpdatedAt = Date.now();
+    }
+    callback();
+  }
 }
 
 export class Logger {
@@ -18,11 +41,13 @@ export class Logger {
   private spinner: Ora | undefined = undefined;
   private toolCallCount: number = 0;
   private updateInterval: NodeJS.Timeout | undefined = undefined;
+  public stream: LoggerStream;
 
   constructor(config: Config) {
     this.includeTimestamps = config.log_timestamps;
     this.level = config.log_level;
     this.color = config.log_color;
+    this.stream = new LoggerStream(this);
   }
 
   private getTimestamp() {
@@ -120,6 +145,7 @@ export class Logger {
     this.info(message);
     this.spanStartTime = Date.now();
     this.toolCallCount = 0;
+    this.stream.appendedString = "";
     this.spinner = ora(this.formatMessage(message, chalk.cyan)).start();
 
     this.updateInterval = setInterval(() => this.updateSpanDisplay(), 1000);
@@ -142,6 +168,17 @@ export class Logger {
     this.updateSpanDisplay();
   }
 
+  streamToSpan(message: string) {
+    if (!this.spinner) return;
+
+    if (this.updateInterval) {
+      clearInterval(this.updateInterval);
+      this.updateInterval = undefined;
+    }
+
+    this.spinner.text = `Streaming: \r\n` + message;
+  }
+
   endSpan(message: string = "Completed with no output") {
     if (this.updateInterval) {
       clearInterval(this.updateInterval);
@@ -160,6 +197,7 @@ export class Logger {
     this.spinner = undefined;
     this.spanStartTime = undefined;
     this.toolCallCount = 0;
+    this.stream.appendedString = "";
 
     this.info(`\r\n${message}\r\n`);
   }

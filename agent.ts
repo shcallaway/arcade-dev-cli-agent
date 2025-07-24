@@ -45,9 +45,10 @@ program
     });
 
     logger.startSpan(`Analyzing inbox...`);
-    const result = await run(googleAgent, "What are my latest 10 emails?  Format the response as a markdown table.");
-    logger.info(result.finalOutput);
-    logger.endSpan(`Done!`);
+    const stream = await run(googleAgent, "What are my latest 10 emails?  Format the response as a markdown table.  Show just the date-time, subject, and sender.", {stream: true,});
+    stream.toTextStream({ compatibleWithNodeStreams: true }).pipe(logger.stream);
+    await stream.completed;
+    logger.endSpan(stream.finalOutput);
 
     process.exit(0);
   });

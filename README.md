@@ -14,10 +14,17 @@ To install dependencies:
 bun install
 ```
 
+Then, set up the environment variables you will need:
+
+```bash
+cp .env.example .env
+# fill it out with your information!
+```
+
 To run:
 
 ```bash
-./agent.ts --help
+./agent.ts
 ```
 
 This project was created using `bun init` in bun v1.2.9. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
