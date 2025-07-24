@@ -1,0 +1,27 @@
+{
+  "name": "email-agent-template",
+  "module": "agent.ts",
+  "type": "module",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Email Agent Template",
+  "peerDependencies": {
+    "typescript": "^5",
+    "prettier": "^3.6.2"
+  },
+  "bin": {
+    "agent": "./agent.ts"
+  },
+  "dependencies": {
+    "@arcadeai/arcadejs": "^1.9.0",
+    "@commander-js/extra-typings": "^14.0.0",
+    "@openai/agents": "^0.0.13",
+    "chalk": "^5.4.1",
+    "commander": "^14.0.0",
+    "openai": "^5.10.2",
+    "ora": "^8.2.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  }
+}
