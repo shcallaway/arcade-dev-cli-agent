@@ -23,7 +23,7 @@ Show just the date-time, subject, and sender.
       toolkitNames,
     );
 
-    this.logger.endSpan(stream.finalOutput);
+    this.logger.endSpan();
   }
 
   async summarizeInboxToSlack(slackUser: string) {
@@ -40,6 +40,6 @@ Send the summary to the slack user: ${slackUser}.
       toolkitNames,
     );
 
-    this.logger.endSpan(stream.finalOutput);
+    this.logger.endSpan();
   }
 }

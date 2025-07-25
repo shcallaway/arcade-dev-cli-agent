@@ -183,7 +183,7 @@ export class Logger {
     this.spinner.text = `Streaming: \r\n` + message;
   }
 
-  endSpan(message: string = "Completed with no output") {
+  endSpan(message: string = "<<>>") {
     if (this.updateInterval) {
       clearInterval(this.updateInterval);
       this.updateInterval = undefined;
@@ -203,6 +203,6 @@ export class Logger {
     this.toolCallCount = 0;
     this.stream.appendedString = "";
 
-    this.info(`\r\n${message}\r\n`);
+    this.info(`${message}\r\n`);
   }
 }
