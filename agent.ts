@@ -6,9 +6,11 @@ import { Config } from "./classes/config";
 import { Logger } from "./classes/logger";
 
 import { InboxAgent } from "./agents/inbox";
+import { setOpenAIClient } from "./utils/client";
 
 const config = new Config();
 const logger = new Logger(config);
+setOpenAIClient(config);
 
 program.version(pkg.version).name(pkg.name).description(pkg.description);
 
@@ -36,6 +38,5 @@ program
     await agent.summarizeInboxToSlack(slack_user);
     process.exit(0);
   });
-
 
 program.parse();

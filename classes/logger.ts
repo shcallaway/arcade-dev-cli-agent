@@ -189,6 +189,8 @@ export class Logger {
       this.updateInterval = undefined;
     }
 
+    this.stream.appendedString = "";
+
     const doneMessage = "Done!";
     const timestamp = this.getTimestamp();
     const duration = this.getDuration();
@@ -201,7 +203,6 @@ export class Logger {
     this.spinner = undefined;
     this.spanStartTime = undefined;
     this.toolCallCount = 0;
-    this.stream.appendedString = "";
 
     this.info(`${message}\r\n`);
   }

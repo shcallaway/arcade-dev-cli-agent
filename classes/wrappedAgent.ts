@@ -42,11 +42,6 @@ export abstract class WrappedAgent {
       tools.push(...toolkitTools);
     }
 
-    const client = new OpenAI({
-      apiKey: this.config.openai_api_key,
-    });
-    setDefaultOpenAIClient(client);
-
     const agent = new Agent<unknown, "text">({
       name: this.name,
       model: this.config.openai_model,
@@ -66,6 +61,7 @@ export abstract class WrappedAgent {
       .toTextStream({ compatibleWithNodeStreams: true })
       .pipe(this.logger.stream);
     await stream.completed;
+
     this.logger.endSpan(stream.finalOutput);
 
     if (stream.history.length > 0) {
