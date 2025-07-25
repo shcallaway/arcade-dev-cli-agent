@@ -16,15 +16,26 @@ program
   .command("inbox")
   .description("Read your inbox and summarize the emails")
   .option(
-    "-n, --number_of_emails [number_of_emails]",
+    "-n, --number_of_emails <number_of_emails>",
     "The number of emails to read",
     parseInt,
     10,
   )
   .action(async (options) => {
     const agent = new InboxAgent(config, logger);
-    await agent.readInbox(options.number_of_emails as number);
+    await agent.readInbox(options.number_of_emails);
     process.exit(0);
   });
+
+program
+  .command("slack-summary")
+  .description("Read your inbox and summarize the emails")
+  .argument("<slack_user>", "The slack user to send the summary to")
+  .action(async (slack_user) => {
+    const agent = new InboxAgent(config, logger);
+    await agent.summarizeInboxToSlack(slack_user);
+    process.exit(0);
+  });
+
 
 program.parse();

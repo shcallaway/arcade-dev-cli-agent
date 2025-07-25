@@ -25,4 +25,21 @@ Show just the date-time, subject, and sender.
 
     this.logger.endSpan(stream.finalOutput);
   }
+
+  async summarizeInboxToSlack(slackUser: string) {
+    const toolkitNames = ["gmail", "slack"];
+
+    this.logger.startSpan(`Summarizing inbox to Slack...`);
+
+    const stream = await this.run(
+      `
+Read all the unread emails in my inbox.
+Summarize the emails in a way that is easy to understand, but make them all rhyme.
+Send the summary to the slack user: ${slackUser}.
+      `,
+      toolkitNames,
+    );
+
+    this.logger.endSpan(stream.finalOutput);
+  }
 }
