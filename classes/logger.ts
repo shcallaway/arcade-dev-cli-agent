@@ -13,7 +13,7 @@ export enum LogLevel {
 const SPAN_UPDATE_INTERVAL = 200;
 
 class LoggerStream extends Writable {
-  public appendedString: string = '';
+  public appendedString: string = "";
   private logger: Logger;
   private lastUpdatedAt: number = 0;
 
@@ -22,7 +22,11 @@ class LoggerStream extends Writable {
     this.logger = logger;
   }
 
-  _write(chunk: any, encoding: string, callback: (error?: Error | null) => void) {
+  _write(
+    chunk: any,
+    encoding: string,
+    callback: (error?: Error | null) => void,
+  ) {
     const stringChunk = String(chunk);
     this.appendedString += stringChunk;
     if (Date.now() - this.lastUpdatedAt > SPAN_UPDATE_INTERVAL) {

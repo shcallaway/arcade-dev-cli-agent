@@ -1,35 +1,28 @@
 import { WrappedAgent } from "../classes/wrappedAgent";
 import type { Config } from "../classes/config";
 import type { Logger } from "../classes/logger";
-import Arcade from '@arcadeai/arcadejs';
-import { executeOrAuthorizeZodTool, toZod } from "@arcadeai/arcadejs/lib";
-import { tool } from "@openai/agents";
-
-const arcadeClient = new Arcade();
-
-const googleToolkit = await arcadeClient.tools.list({ toolkit: "gmail", limit: 99 });
-const tools = toZod({
-    tools: googleToolkit.items,
-    arcadeClient,
-    userId: "<YOUR_SYSTEM_USER_ID>",
-    // @ts-ignore
-    executeFactory: executeOrAuthorizeZodTool,
-}).map(tool);
 
 export class InboxAgent extends WrappedAgent {
   constructor(config: Config, logger: Logger) {
-    const instructions = `
-You are a an agent that reads the inbox and summarizes the emails.
-    `;
-
-    super("InboxAgent", instructions, tools, [], config, logger);
+    const instructions = `You are a an agent knows everything about Gmail.  You can read and write emails, manage the labels and inbox, etc.`;
+    super("InboxAgent", instructions, config, logger);
   }
 
-  async chat() {
-    const result = await this.run(
-      `What is my most recent email?`,
+  async readInbox(numberOfEmails: number) {
+    const toolkitNames = ["gmail"];
+
+    this.logger.startSpan(`Analyzing inbox...`);
+
+    const stream = await this.run(
+      `
+You are a helpful assistant that can assist with Google API calls.
+What are my latest ${numberOfEmails} emails in my inbox?
+Format the response as a markdown table.
+Show just the date-time, subject, and sender.
+    `,
+      toolkitNames,
     );
 
-    this.logger.endSpan(result.finalOutput);
+    this.logger.endSpan(stream.finalOutput);
   }
 }

@@ -1,11 +1,16 @@
 import { Arcade } from "@arcadeai/arcadejs";
 import type { Config } from "../classes/config";
 import { executeOrAuthorizeZodTool, toZod } from "@arcadeai/arcadejs/lib";
-import { tool } from '@openai/agents';
+import { tool } from "@openai/agents";
 import { Logger } from "../classes/logger";
 import chalk from "chalk";
 
-export async function prepareTools(config: Config, logger: Logger, toolkitName: string, limit = 100) {
+export async function prepareTools(
+  config: Config,
+  logger: Logger,
+  toolkitName: string,
+  limit = 100,
+) {
   const client = new Arcade({ apiKey: config.arcade_api_key });
   const toolkit = await client.tools.list({ toolkit: toolkitName, limit });
 
@@ -13,7 +18,10 @@ export async function prepareTools(config: Config, logger: Logger, toolkitName: 
     return async (input: any) => {
       const toolName = tool.toolDefinition.qualified_name as string;
       logger.incrementToolCalls();
-      logger.updateSpan(`executing tool \`${toolName}\` ${config.log_color ? chalk.gray(`(${JSON.stringify(input)})`) : `(${JSON.stringify(input)})`}`, "⏳");
+      logger.updateSpan(
+        `executing tool \`${toolName}\` ${config.log_color ? chalk.gray(`(${JSON.stringify(input)})`) : `(${JSON.stringify(input)})`}`,
+        "⏳",
+      );
       const startTime = Date.now();
       try {
         const result = await executeOrAuthorizeZodTool(tool)(input);
@@ -43,4 +51,3 @@ export async function prepareTools(config: Config, logger: Logger, toolkitName: 
 
   return tools;
 }
-

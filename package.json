@@ -11,6 +11,9 @@
   "bin": {
     "agent": "./agent.ts"
   },
+  "scripts": {
+    "format": "prettier --write ."
+  },
   "dependencies": {
     "@arcadeai/arcadejs": "^1.9.0",
     "@commander-js/extra-typings": "^14.0.0",
