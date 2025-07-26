@@ -6,10 +6,11 @@ import { Config } from "./classes/config";
 import { Logger } from "./classes/logger";
 import * as readline from "readline";
 
-import { InboxAgent } from "./agents/inbox";
 import { setOpenAIClient } from "./utils/client";
 import chalk from "chalk";
+
 import { GeneralAgent } from "./agents/general";
+import { InboxAgent } from "./agents/inbox";
 
 const config = new Config();
 const logger = new Logger(config);
