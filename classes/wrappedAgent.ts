@@ -9,6 +9,8 @@ import {
 import { Config } from "./config";
 import type { Logger } from "./logger";
 import { prepareTools } from "../utils/tools";
+import * as readline from "readline";
+import chalk from "chalk";
 
 export abstract class WrappedAgent {
   history: AgentInputItem[] = [];
@@ -78,5 +80,60 @@ export abstract class WrappedAgent {
     }
 
     return stream;
+  }
+
+  public async interactiveChat(
+    execMethod: (input: string) => Promise<void>,
+    initialMessage?: string,
+    toolkitNames: string[] = [],
+    onExit: () => void = () => process.exit(0),
+  ) {
+    this.logger.info(
+      `🤖 Starting chat session with your agent (${this.config.openai_model})`,
+    );
+    this.logger.info(
+      `📦 Available toolkits: ${chalk.cyan(toolkitNames.join(", "))}`,
+    );
+    this.logger.info("💡 Type 'quit', 'exit', or 'bye' to end the session");
+    this.logger.info("💡 Type 'clear' to clear the conversation history");
+
+    const askQuestion = async (
+      questionText: string = `${this.logger.getTimestamp()} ` +
+        chalk.green("?>: "),
+    ) => {
+      await new Promise((resolve) => {
+        const rl = readline.createInterface({
+          input: process.stdin,
+          output: process.stdout,
+        });
+        rl.question(questionText, async (answer) => {
+          await handleInput(answer.trim());
+          rl.close();
+          resolve(true);
+        });
+      });
+
+      await askQuestion();
+    };
+
+    const handleInput = async (input: string) => {
+      if (input.toLowerCase() === "quit" || input.toLowerCase() === "exit") {
+        console.log("👋 Goodbye!");
+        onExit?.();
+      }
+
+      if (input === "clear") {
+        this.history = [];
+        this.logger.info("🧹 Conversation history cleared!");
+        return await execMethod("Hello - we are starting a new conversation");
+      }
+
+      return await execMethod(input);
+    };
+
+    if (initialMessage) {
+      await handleInput(initialMessage);
+    }
+    await askQuestion();
   }
 }

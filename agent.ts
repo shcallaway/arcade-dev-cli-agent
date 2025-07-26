@@ -4,10 +4,8 @@ import { program } from "@commander-js/extra-typings";
 import * as pkg from "./package.json";
 import { Config } from "./classes/config";
 import { Logger } from "./classes/logger";
-import * as readline from "readline";
 
 import { setOpenAIClient } from "./utils/client";
-import chalk from "chalk";
 
 import { GeneralAgent } from "./agents/general";
 import { InboxAgent } from "./agents/inbox";
@@ -27,9 +25,10 @@ program
     parseInt,
     10,
   )
+  .option("-r, --include_read", "Include read emails in the summary", false)
   .action(async (options) => {
     const agent = new InboxAgent(config, logger);
-    await agent.readInbox(options.number_of_emails);
+    await agent.readInbox(options.number_of_emails, options.include_read);
     process.exit(0);
   });
 
@@ -55,52 +54,13 @@ program
   .action(async (message, options) => {
     const agent = new GeneralAgent(config, logger);
     const toolkitNames = options.toolkits.split(",").map((t) => t.trim());
-
-    logger.info(
-      `🤖 Starting chat session with your agent (${config.openai_model})`,
+    await agent.interactiveChat(
+      async (input: string) => {
+        await agent.chat(input, toolkitNames);
+      },
+      message,
+      toolkitNames,
     );
-    logger.info(`📦 Available toolkits: ${chalk.cyan(toolkitNames.join(", "))}`);
-    logger.info("💡 Type 'quit', 'exit', or 'bye' to end the session");
-    logger.info("💡 Type 'clear' to clear the conversation history");
-
-    async function askQuestion(
-      questionText: string = `${logger.getTimestamp()} ` + chalk.green("?>: "),
-    ) {
-      await new Promise((resolve) => {
-        const rl = readline.createInterface({
-          input: process.stdin,
-          output: process.stdout,
-        });
-        rl.question(questionText, async (answer) => {
-          await handleInput(answer.trim());
-          rl.close();
-          resolve(true);
-        });
-      });
-
-      await askQuestion();
-    }
-
-    async function handleInput(input: string) {
-      if (input.toLowerCase() === "quit" || input.toLowerCase() === "exit") {
-        console.log("👋 Goodbye!");
-        process.exit(0);
-      }
-
-      if (input === "clear") {
-        agent.history = [];
-        logger.info("🧹 Conversation history cleared!");
-        askQuestion();
-        return;
-      }
-
-      return await agent.chat(input, toolkitNames);
-    }
-
-    if (message) {
-      await handleInput(message);
-    }
-    await askQuestion();
   });
 
 program.parse();
