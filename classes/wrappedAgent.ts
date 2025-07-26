@@ -3,10 +3,8 @@ import {
   type AgentInputItem,
   Runner,
   type Tool,
-  setDefaultOpenAIClient,
   user,
 } from "@openai/agents";
-import OpenAI from "openai";
 
 import { Config } from "./config";
 import type { Logger } from "./logger";
@@ -18,6 +16,7 @@ export abstract class WrappedAgent {
   instructions: string;
   config: Config;
   logger: Logger;
+  agent?: Agent<unknown, "text">;
 
   constructor(
     name: string,
@@ -33,6 +32,7 @@ export abstract class WrappedAgent {
 
   public async run(prompt: string, toolkitNames: string[] = [], maxTurns = 10) {
     const tools: Tool[] = [];
+
     for (const toolkitName of toolkitNames) {
       const toolkitTools = await prepareTools(
         this.config,
@@ -42,17 +42,22 @@ export abstract class WrappedAgent {
       tools.push(...toolkitTools);
     }
 
-    const agent = new Agent<unknown, "text">({
-      name: this.name,
-      model: this.config.openai_model,
-      instructions: this.instructions,
-      tools,
-    });
-    const runner = new Runner(agent);
+    if (!this.agent) {
+      this.agent = new Agent<unknown, "text">({
+        name: this.name,
+        model: this.config.openai_model,
+        instructions: this.instructions,
+        tools,
+      });
+    } else {
+      this.agent.tools = tools;
+    }
+
+    const runner = new Runner(this.agent);
 
     this.history.push(user(prompt));
 
-    const stream = await runner.run(agent, this.history, {
+    const stream = await runner.run(this.agent, this.history, {
       maxTurns,
       stream: true,
     });

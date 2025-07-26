@@ -54,7 +54,7 @@ export class Logger {
     this.stream = new LoggerStream(this);
   }
 
-  private getTimestamp() {
+  public getTimestamp() {
     const timestamp = new Date().toLocaleTimeString("en-US", {
       hour12: false,
       hour: "2-digit",
@@ -183,7 +183,7 @@ export class Logger {
     this.spinner.text = `Streaming: \r\n` + message;
   }
 
-  endSpan(message: string = "<<>>") {
+  endSpan(message?: string) {
     if (this.updateInterval) {
       clearInterval(this.updateInterval);
       this.updateInterval = undefined;
@@ -204,6 +204,8 @@ export class Logger {
     this.spanStartTime = undefined;
     this.toolCallCount = 0;
 
-    this.info(`${message}\r\n`);
+    if (message) {
+      this.info(`${message}\r\n`);
+    }
   }
 }

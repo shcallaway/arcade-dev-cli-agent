@@ -9,9 +9,9 @@ export class InboxAgent extends WrappedAgent {
   }
 
   async readInbox(numberOfEmails: number) {
-    const toolkitNames = ["gmail"];
+    const toolkitNames = ["gmail", "slack"];
 
-    this.logger.startSpan(`Analyzing inbox...`);
+    this.logger.startSpan(`Chatting with your inbox...`);
 
     const stream = await this.run(
       `
@@ -41,5 +41,14 @@ Send the summary to the slack user: ${slackUser}.
     );
 
     this.logger.endSpan();
+  }
+
+  async chat(prompt: string, toolkitNames: string[] = []) {
+    this.logger.startSpan(
+      `thinking about this with toolkits: ${toolkitNames.join(", ")}...`,
+    );
+    const stream = await this.run(prompt, toolkitNames);
+    this.logger.endSpan();
+    return stream;
   }
 }
