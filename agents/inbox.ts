@@ -42,13 +42,4 @@ Send the summary to the slack user: ${slackUser}.
 
     this.logger.endSpan();
   }
-
-  async chat(prompt: string, toolkitNames: string[] = []) {
-    this.logger.startSpan(
-      `thinking about this with toolkits: ${toolkitNames.join(", ")}...`,
-    );
-    const stream = await this.run(prompt, toolkitNames);
-    this.logger.endSpan();
-    return stream;
-  }
 }

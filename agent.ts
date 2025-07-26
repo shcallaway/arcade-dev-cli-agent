@@ -9,6 +9,7 @@ import * as readline from "readline";
 import { InboxAgent } from "./agents/inbox";
 import { setOpenAIClient } from "./utils/client";
 import chalk from "chalk";
+import { GeneralAgent } from "./agents/general";
 
 const config = new Config();
 const logger = new Logger(config);
@@ -44,13 +45,14 @@ program
 program
   .command("chat")
   .description("Start an interactive chat session with the agent")
+  .argument("[message]", "The message to start the chat session with")
   .option(
     "-t, --toolkits <toolkits>",
     "Comma-separated list of toolkits to use (e.g., gmail,slack)",
     "gmail,slack",
   )
-  .action(async (options) => {
-    const agent = new InboxAgent(config, logger);
+  .action(async (message, options) => {
+    const agent = new GeneralAgent(config, logger);
     const toolkitNames = options.toolkits.split(",").map((t) => t.trim());
 
     logger.info(
@@ -60,17 +62,19 @@ program
     logger.info("💡 Type 'quit', 'exit', or 'bye' to end the session");
     logger.info("💡 Type 'clear' to clear the conversation history");
 
-    async function askQuestion(questionText: string = `${logger.getTimestamp()} ` + chalk.green("?>: ")) {
+    async function askQuestion(
+      questionText: string = `${logger.getTimestamp()} ` + chalk.green("?>: "),
+    ) {
       await new Promise((resolve) => {
         const rl = readline.createInterface({
           input: process.stdin,
           output: process.stdout,
-        })
+        });
         rl.question(questionText, async (answer) => {
-            await handleInput(answer.trim());
-            rl.close();
-            resolve(true);
-          });
+          await handleInput(answer.trim());
+          rl.close();
+          resolve(true);
+        });
       });
 
       await askQuestion();
@@ -92,6 +96,9 @@ program
       return await agent.chat(input, toolkitNames);
     }
 
+    if (message) {
+      await handleInput(message);
+    }
     await askQuestion();
   });
 
