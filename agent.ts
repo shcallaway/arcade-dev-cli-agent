@@ -59,7 +59,7 @@ program
     logger.info(
       `🤖 Starting chat session with your agent (${config.openai_model})`,
     );
-    logger.info(`📦 Available toolkits: ${toolkitNames.join(", ")}`);
+    logger.info(`📦 Available toolkits: ${chalk.cyan(toolkitNames.join(", "))}`);
     logger.info("💡 Type 'quit', 'exit', or 'bye' to end the session");
     logger.info("💡 Type 'clear' to clear the conversation history");
 
