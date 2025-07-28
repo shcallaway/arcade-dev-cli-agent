@@ -16,31 +16,31 @@ setOpenAIClient(config);
 
 program.version(pkg.version).name(pkg.name).description(pkg.description);
 
-program
-  .command("inbox")
-  .description("Read your inbox and summarize the emails")
-  .option(
-    "-n, --number_of_emails <number_of_emails>",
-    "The number of emails to read",
-    parseInt,
-    10,
-  )
-  .option("-r, --include_read", "Include read emails in the summary", false)
-  .action(async (options) => {
-    const agent = new InboxAgent(config, logger);
-    await agent.readInbox(options.number_of_emails, options.include_read);
-    process.exit(0);
-  });
+// program
+//   .command("inbox")
+//   .description("Read your inbox and summarize the emails")
+//   .option(
+//     "-n, --number_of_emails <number_of_emails>",
+//     "The number of emails to read",
+//     parseInt,
+//     10,
+//   )
+//   .option("-r, --include_read", "Include read emails in the summary", false)
+//   .action(async (options) => {
+//     const agent = new InboxAgent(config, logger);
+//     await agent.readInbox(options.number_of_emails, options.include_read);
+//     process.exit(0);
+//   });
 
-program
-  .command("slack-summary")
-  .description("Read your inbox and summarize the emails")
-  .argument("<slack_user>", "The slack user to send the summary to")
-  .action(async (slack_user) => {
-    const agent = new InboxAgent(config, logger);
-    await agent.summarizeInboxToSlack(slack_user);
-    process.exit(0);
-  });
+// program
+//   .command("slack-summary")
+//   .description("Read your inbox and summarize the emails")
+//   .argument("<slack_user>", "The slack user to send the summary to")
+//   .action(async (slack_user) => {
+//     const agent = new InboxAgent(config, logger);
+//     await agent.summarizeInboxToSlack(slack_user);
+//     process.exit(0);
+//   });
 
 program
   .command("chat")
@@ -48,8 +48,8 @@ program
   .argument("[message]", "The message to start the chat session with")
   .option(
     "-t, --toolkits <toolkits>",
-    "Comma-separated list of toolkits to use (e.g., gmail,slack)",
-    "gmail,slack",
+    "Comma-separated list of toolkits to use (e.g., gmail)",
+    "gmail",
   )
   .action(async (message, options) => {
     const agent = new GeneralAgent(config, logger);
